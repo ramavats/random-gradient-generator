@@ -3,9 +3,15 @@ import React from 'react'
 function App() {
 
   return (
-    <>
-      <h1 className='h-screen bg-black text-white flex flex-col justify-center items-center text-3xl'>Vite is running with tailwind</h1>
-    </>
+    <div className="navbar navbar-floating bg-gradient-to-r from-rose-700 to-pink-600 lg:rounded-full rounded-none sticky lg:top-5 top-0 drop-shadow-md">
+	<div className="navbar-start">
+		<a className="navbar-item font-bold">Gradient Generator</a>
+	</div>
+	<div className="navbar-end">
+		<a className="navbar-item" href='https://github.com/ramavats'>Github</a>
+	</div>
+</div>
+    
   )
 }
 
