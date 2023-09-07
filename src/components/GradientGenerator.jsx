@@ -5,8 +5,8 @@ import { FiCopy, FiDownload, FiCheck } from 'react-icons/fi';
 const GradientGenerator = () => {
     // State to hold the array of gradients
     const [gradients, setGradients] = useState(generateRandomGradients());
-    const [copyClicked, setCopyClicked] = useState(false);
-    const [downloadClicked, setDownloadClicked] = useState(false);
+    const [copyStates, setCopyStates] = useState(new Array(16).fill(false));
+    const [downloadStates, setDownloadStates] = useState(new Array(16).fill(false));
 
   
     // Function to generate 9 random gradients
@@ -37,13 +37,21 @@ const GradientGenerator = () => {
   //   alert('CSS code copied to clipboard: ' + gradient);
   // }
 
-  function copyCssCode(gradient) {
+  function copyCssCode(gradientIndex, gradient) {
     navigator.clipboard.writeText(gradient);
-    setCopyClicked(true);
+    setCopyStates((prevCopyStates) => {
+      const newState = [...prevCopyStates];
+      newState[gradientIndex] = true;
+      return newState;
+    });
     setTimeout(() => {
-      setCopyClicked(false);
+      setCopyStates((prevCopyStates) => {
+        const newState = [...prevCopyStates];
+        newState[gradientIndex] = false;
+        return newState;
+      });
     }, 3000);
-  }
+  } 
 
   // Function to download a PNG file with the gradient
   function downloadPng(gradientIndex) {
@@ -75,50 +83,62 @@ const GradientGenerator = () => {
       link.href = pngDataUrl;
       link.download = `gradient_${gradientIndex}.png`;
       link.click();
+      setDownloadStates((prevDownloadStates) => {
+        const newState = [...prevDownloadStates];
+        newState[gradientIndex] = true;
+        return newState;
+      });
+      setTimeout(() => {
+        setDownloadStates((prevDownloadStates) => {
+          const newState = [...prevDownloadStates];
+          newState[gradientIndex] = false;
+          return newState;
+        });
+      }, 3000);
     } else {
       alert('Error: Unable to extract gradient colors.');
     }
-    setDownloadClicked(true);
-    setTimeout(() => {
-    setDownloadClicked(false);
-    }, 3000);
   }
   
-    // Function to handle the "Regenerate" button click
-    function handleRegenerate() {
-      const newGradients = generateRandomGradients();
-      setGradients(newGradients);
-    }
-  
+  // Function to handle the "Regenerate" button click
+  function handleRegenerate() {
+    const newGradients = generateRandomGradients();
+    setGradients(newGradients);
+    // Reset the copied and downloaded states
+    setCopyStates(new Array(16).fill(false));
+    setDownloadStates(new Array(16).fill(false));
+  }
+
     return (
-        <div className='flex flex-col justify-center md:mx-20 mx-2'>
-        <div className="grid-container grid grid-cols-1 gap-4 lg:grid-cols-4 md:grid-cols-3 md:gap-8 lg:mx-20 mt-10">
+    <div className='flex flex-col justify-center md:mx-20 mx-2'>
+      <div className="grid-container grid grid-cols-1 gap-4 lg:grid-cols-4 md:grid-cols-3 md:gap-8 lg:mx-20 mt-10">
         {gradients.map((gradient, index) => (
-            <div key={index} className="relative">
+          <div key={index} className="relative">
             <GradientBox gradient={gradient} />
             <div className="absolute inset-0 bottom-2 flex items-end justify-end">
-            <button
-              className='bg-black bg-opacity-40 text-white p-2 rounded-xl font-bold mr-2 transition-all duration-300 ease-in'
-              onClick={() => copyCssCode(gradient)}
-            >
-              {copyClicked ? <FiCheck /> : <FiCopy />}
-            </button>
-            <button
-              className='bg-black bg-opacity-40 text-white p-2 rounded-xl font-bold mr-2 transition-all duration-300 ease-in'
-              onClick={() => downloadPng(index)}
-            >
-              {downloadClicked ? <FiCheck /> : <FiDownload />}
-            </button>
+              <button
+                className={`${copyStates[index] ? 'bg-gradient-to-r from-green-500 to-green-700' : 'bg-black bg-opacity-40'} text-white p-2 rounded-xl font-bold mr-2 transition-all duration-150 ease-in`}
+                onClick={() => copyCssCode(index, gradient)}
+              >
+                {copyStates[index] ? <FiCheck /> : <FiCopy />}
+              </button>
+              <button
+                className={`${downloadStates[index] ? 'bg-gradient-to-r from-yellow-600 to-red-600' : 'bg-black bg-opacity-40'} text-white p-2 rounded-xl font-bold mr-2 transition-all duration-150 ease-in`}
+                onClick={() => downloadPng(index)}
+                disabled={downloadStates[index]}
+              >
+                {downloadStates[index] ? <FiCheck /> : <FiDownload />}
+              </button>
             </div>
           </div>
-          ))}
-        </div>
-        <div className='flex justify-center mt-5 sticky bottom-0'>
-        <button className='navbar-glass bg-[conic-gradient(at_right,_var(--tw-gradient-stops))] from-rose-700 to-pink-600 hover:bg-gradient-to-t hover:from-rose-700 hover:to-pink-600 text-white px-10 py-4 rounded-lg font-bold m-2 w-full md:w-auto drop-shadow-lg' onClick={handleRegenerate}>Regenerate</button>
-        </div>
+        ))}
       </div>
-    );
-  };
+      <div className='flex justify-center mt-5 sticky bottom-0'>
+        <button className='navbar-glass bg-[conic-gradient(at_right,_var(--tw-gradient-stops))] from-rose-700 to-pink-600 hover:bg-gradient-to-t hover:from-rose-700 hover:to-pink-600 text-white px-10 py-4 rounded-lg font-bold m-2 w-full md:w-auto drop-shadow-lg' onClick={handleRegenerate}>Regenerate</button>
+      </div>
+    </div>
+  );
+};
 
 
 export default GradientGenerator
