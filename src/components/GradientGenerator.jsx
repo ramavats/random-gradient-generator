@@ -1,9 +1,13 @@
 import React, { useState } from 'react'
 import GradientBox from './GradientBox';
+import { FiCopy, FiDownload, FiCheck } from 'react-icons/fi';
 
 const GradientGenerator = () => {
     // State to hold the array of gradients
     const [gradients, setGradients] = useState(generateRandomGradients());
+    const [copyClicked, setCopyClicked] = useState(false);
+    const [downloadClicked, setDownloadClicked] = useState(false);
+
   
     // Function to generate 9 random gradients
     function generateRandomGradients() {
@@ -28,9 +32,17 @@ const GradientGenerator = () => {
     }
 
       // Function to copy CSS code to clipboard
+  // function copyCssCode(gradient) {
+  //   navigator.clipboard.writeText(gradient);
+  //   alert('CSS code copied to clipboard: ' + gradient);
+  // }
+
   function copyCssCode(gradient) {
     navigator.clipboard.writeText(gradient);
-    alert('CSS code copied to clipboard: ' + gradient);
+    setCopyClicked(true);
+    setTimeout(() => {
+      setCopyClicked(false);
+    }, 3000);
   }
 
   // Function to download a PNG file with the gradient
@@ -38,6 +50,7 @@ const GradientGenerator = () => {
     const canvas = document.createElement('canvas');
     canvas.width = 1200; // Adjust the canvas dimensions as needed
     canvas.height = 675;
+
 
     const context = canvas.getContext('2d');
     const gradient = gradients[gradientIndex];
@@ -65,6 +78,10 @@ const GradientGenerator = () => {
     } else {
       alert('Error: Unable to extract gradient colors.');
     }
+    setDownloadClicked(true);
+    setTimeout(() => {
+    setDownloadClicked(false);
+    }, 3000);
   }
   
     // Function to handle the "Regenerate" button click
@@ -76,22 +93,22 @@ const GradientGenerator = () => {
     return (
         <div className='flex flex-col justify-center md:mx-20 mx-2'>
         <div className="grid-container grid grid-cols-1 gap-4 lg:grid-cols-4 md:grid-cols-3 md:gap-8 lg:mx-20 mt-10">
-          {gradients.map((gradient, index) => (
+        {gradients.map((gradient, index) => (
             <div key={index} className="relative">
             <GradientBox gradient={gradient} />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <button
-                className='bg-black text-white px-2 py-1 rounded-lg font-bold mr-2'
-                onClick={() => copyCssCode(gradient)}
-              >
-                Copy CSS
-              </button>
-              <button
-                className='bg-black text-white px-2 py-1 rounded-lg font-bold mr-2'
-                onClick={() => downloadPng(index)}
-              >
-                Download PNG
-              </button>
+            <div className="absolute inset-0 bottom-2 flex items-end justify-end">
+            <button
+              className='bg-black bg-opacity-40 text-white p-2 rounded-xl font-bold mr-2 transition-all duration-300 ease-in'
+              onClick={() => copyCssCode(gradient)}
+            >
+              {copyClicked ? <FiCheck /> : <FiCopy />}
+            </button>
+            <button
+              className='bg-black bg-opacity-40 text-white p-2 rounded-xl font-bold mr-2 transition-all duration-300 ease-in'
+              onClick={() => downloadPng(index)}
+            >
+              {downloadClicked ? <FiCheck /> : <FiDownload />}
+            </button>
             </div>
           </div>
           ))}
